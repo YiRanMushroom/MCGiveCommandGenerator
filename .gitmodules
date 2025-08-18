@@ -1,0 +1,4 @@
+[submodule "vendor/EasyGui"]
+	path = vendor/EasyGui
+	url = https://github.com/YiRanMushroom/EasyGui
+	branch = master
