@@ -17,3 +17,16 @@ target_sources(${PROJECT_NAME} PUBLIC
 
 add_subdirectory(vendor/EasyGui)
 target_link_libraries(${PROJECT_NAME} PRIVATE EasyGui)
+
+add_subdirectory(vendor/nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+
+# Copy ./assets directory to the build directory
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets)
+
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /UTF8")
+endif()
