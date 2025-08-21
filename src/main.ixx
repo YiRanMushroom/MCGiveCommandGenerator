@@ -9,8 +9,7 @@ import std.compat;
 import ProgramConfig;
 
 const ImWchar *GetGlyphRangesChineseFull() {
-    static const ImWchar ranges[] =
-    {
+    static constexpr ImWchar ranges[]{
         0x0020, 0x00FF, // Basic Latin + Latin Supplement
         0x2000, 0x206F, // General Punctuation
         0x3000, 0x30FF, // CJK Symbols and Punctuations, Hiragana, Katakana
@@ -25,7 +24,14 @@ const ImWchar *GetGlyphRangesChineseFull() {
 
 void AddAllTranslations(TranslationLibrary &translationLibrary);
 
-export int main(int argc, char *argv[]) {
+void ReportFatalError() {
+    EasyGui::Windows::ShowErrorMessage(
+        L"An unexpected error occurred. Please check the console for details.",
+        L"Fatal Error"
+    );
+}
+
+void RunApplication(int argc, char *argv[]) {
     TranslationLibrary translationLibrary;
 
     ProgramConfig config = ProgramConfig::LoadOrDefault();
@@ -56,23 +62,47 @@ export int main(int argc, char *argv[]) {
 
     window->GetGraphicsContext().SetClearColor(vk::ClearColorValue(0.f, 0.f, 0.f, 1.0f));
 
-    window->EmplaceLayer<BackGroundLayer>(&translationLibrary, config, [&] (TranslationLibrary *translationLibrary, ProgramConfig &config) {
-        titleEntry = TranslatableEntry{
-            translationLibrary,
-            config.language,
-            "program.name"
-        };
+    window->EmplaceLayer<BackGroundLayer>(&translationLibrary, config,
+                                          [&](TranslationLibrary *translationLibrary, ProgramConfig &config) {
+                                              titleEntry = TranslatableEntry{
+                                                  translationLibrary,
+                                                  config.language,
+                                                  "program.name"
+                                              };
 
-        SDL_SetWindowTitle(window->GetWindow(), titleEntry.GetResult().c_str());
-    });
-    window->MainLoop();
+                                              SDL_SetWindowTitle(window->GetWindow(), titleEntry.GetResult().c_str());
+                                          });
+    try {
+        window->MainLoop();
+    } catch (std::exception &e) {
+        ReportFatalError();
+        std::cerr << "An error occurred during the main loop: " << e.what() << std::endl;
+    } catch (...) {
+        ReportFatalError();
+        std::cerr << "An unknown error occurred during the main loop." << std::endl;
+    }
+
     window.reset();
 
     EasyGui::GlobalContext::Shutdown();
 
     ProgramConfig::Save(config);
+}
 
-    return 0; // Return 0 to indicate successful execution.
+export int main(int argc, char *argv[]) {
+    try {
+        RunApplication(argc, argv);
+    } catch (const std::exception &e) {
+        std::cerr << "An error occurred: " << e.what() << std::endl;
+        ReportFatalError();
+        return -1;
+    } catch (...) {
+        std::cerr << "An unknown error occurred." << std::endl;
+        ReportFatalError();
+        return -2;
+    }
+
+    return 0;
 }
 
 void AddAllTranslations(TranslationLibrary &translationLibrary) {

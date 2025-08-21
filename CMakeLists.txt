@@ -28,5 +28,5 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets)
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /UTF8")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /UTF8 /EHa")
 endif()

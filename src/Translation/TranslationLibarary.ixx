@@ -96,6 +96,38 @@ public:
         return m_Result;
     }
 
+    std::string GetPure() {
+        return m_Result.substr(0, m_Result.find("###"));
+    }
+
+private:
+    TranslationLibrary *m_TranslationLibrary{nullptr};
+
+    std::string m_Result;
+};
+
+
+class TranslatableLabelRepeatable {
+public:
+    TranslatableLabelRepeatable() = default;
+
+    TranslatableLabelRepeatable(TranslationLibrary *translationLibrary, std::string_view language, std::string_view key)
+        : m_TranslationLibrary(translationLibrary) {
+        m_Result = std::string(m_TranslationLibrary->GetTranslation(language, key)) + "##" + std::string(key);
+    }
+
+    void SetTranslation(std::string_view language, std::string_view key) {
+        m_Result = std::string(m_TranslationLibrary->GetTranslation(language, key)) + "##" + std::string(key);
+    }
+
+    [[nodiscard]] const std::string &GetResult() const {
+        return m_Result;
+    }
+
+    [[nodiscard]] operator std::string_view() const {
+        return m_Result;
+    }
+
 private:
     TranslationLibrary *m_TranslationLibrary{nullptr};
 

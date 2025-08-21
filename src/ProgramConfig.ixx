@@ -20,7 +20,7 @@ export struct ProgramConfig {
         auto ifs = std::ifstream(std::filesystem::current_path() / "config.json");
         auto json = nlohmann::json::parse(ifs);
         ProgramConfig config{};
-        config.language = json["value"].get<std::string>();
+        config.language = json["language"].get<std::string>();
         return config;
     }
 
