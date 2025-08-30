@@ -151,7 +151,7 @@ public:
 
         m_Items.clear();
         for (const auto &key: translationLibrary->GetAllTranslations().at(config.language) | std::views::keys) {
-            if (key.starts_with("item.minecraft")) {
+            if (key.starts_with("item.minecraft") && !key.substr(15).contains('.')) {
                 m_Items[key] = TranslatableLabel{
                     translationLibrary,
                     config.language,
