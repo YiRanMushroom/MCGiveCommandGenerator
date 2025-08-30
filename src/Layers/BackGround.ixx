@@ -6,7 +6,6 @@ import ProgramConfig;
 import EasyGui.Utils.AsyncProvider;
 import std.compat;
 import EasyGui.Utils.Atomic;
-import <Windows.h>;
 
 export class BackGroundLayer : public EasyGui::IUpdatableLayer {
 private:
