@@ -11,7 +11,7 @@
   "program.copy": "Copy",
   "program.error" : "Error",
   "program.error.no_item_selected": "No Item Selected.",
-  "program.selected_item" : "Selected Item: ",
+  "program.selected_item" : "Selected Item",
   "program.no_item": "None",
   "enchantment.minecraft.aqua_affinity": "Aqua Affinity",
   "enchantment.minecraft.bane_of_arthropods": "Bane of Arthropods",

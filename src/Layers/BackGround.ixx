@@ -5,6 +5,7 @@ import TranslationLibarary;
 import ProgramConfig;
 import EasyGui.Utils.AsyncProvider;
 import std.compat;
+import EasyGui.Utils.Atomic;
 import <Windows.h>;
 
 export class BackGroundLayer : public EasyGui::IUpdatableLayer {
@@ -52,8 +53,8 @@ private:
     TranslatableLabel m_GenerateButtonLabel{};
     TranslatableLabel m_CopyButtonLabel{};
 
-    EasyGui::AsyncProvider<std::string> m_GeneratedCommandBuffer{EasyGui::DefaultConstructed{}};
-    std::string m_GeneratedCommand{};
+    EasyGui::ARCMutex<std::string> m_GeneratedCommandBuffer{EasyGui::DefaultConstructed{}};
+    std::future<void> m_GeneratedCommandFuture;
 
     TranslatableEntry m_ErrorTitleEntry{};
     TranslatableEntry m_ErrorNoItemSelectedEntry{};
@@ -117,7 +118,9 @@ public:
 
         m_FilteredEnchantments.Wait();
         m_FilteredItems.Wait();
-        m_GeneratedCommandBuffer.Wait();
+        if (m_GeneratedCommandFuture.valid()) {
+            m_GeneratedCommandFuture.wait();
+        }
 
         m_Enchantments.clear();
         for (const auto &key: translationLibrary->GetAllTranslations().at(config.language) | std::views::keys) {
@@ -216,14 +219,12 @@ public:
     }
 
     void RenderGeneration() {
-        // Scope
-        std::string str;
-        str.reserve(200); {
-            std::lock_guard lock(m_SelectedItemMutex);
-            str += m_SelectedItemEntry.GetResult() +
-                    (m_SelectedItem.empty() ? m_NoItemEntry.GetResult() : m_Items.at(m_SelectedItem).GetPure());
-        }
-        ImGui::Text(str.c_str());
+        ImGui::TextFmt("{}: {}",
+                       m_SelectedItemEntry.GetResult().data(),
+                       m_SelectedItem.empty()
+                            ? m_NoItemEntry.GetResult().data()
+                            : m_Items.at(m_SelectedItem).GetPure().data()
+        );
         if (ImGui::Button(m_GenerateButtonLabel.GetResult().data())) {
             GenerateCommand();
         }
@@ -232,18 +233,16 @@ public:
             CopyCommand();
         }
 
-        if (!m_GeneratedCommandBuffer.Get().empty()) {
-            m_GeneratedCommand = std::move(m_GeneratedCommandBuffer.Get());
-        }
-
-        ImGui::InputTextMultiline("##GeneratedCommand", &m_GeneratedCommand,
-                                  ImVec2(ImGui::GetContentRegionAvail().x, 100),
-                                  ImGuiInputTextFlags_AutoSelectAll);
+        m_GeneratedCommandBuffer.Let([&](std::string &command) {
+            ImGui::InputTextMultiline("##GeneratedCommand", &command,
+                                      ImVec2(ImGui::GetContentRegionAvail().x, 100),
+                                      ImGuiInputTextFlags_AutoSelectAll);
+        });
     }
 
     void GenerateCommand() {
-        m_GeneratedCommandBuffer.SetFuture([&] {
-            std::lock_guard<std::mutex> lock{m_SelectedItemMutex};
+        m_GeneratedCommandBuffer.DeferredSet([&] {
+            std::lock_guard lock{m_SelectedItemMutex};
             if (m_SelectedItem.empty()) {
                 EasyGui::Windows::ShowErrorMessage(
                     EasyGui::Windows::Utf8ToUtf16(m_ErrorNoItemSelectedEntry.GetResult()),
@@ -269,11 +268,13 @@ public:
     }
 
     void CopyCommand() {
-        if (m_GeneratedCommand.empty()) {
+        auto command = m_GeneratedCommandBuffer.Read();
+
+        if (command->empty()) {
             return;
         }
 
-        std::wstring wstr = EasyGui::Windows::Utf8ToUtf16(m_GeneratedCommand);
+        std::wstring wstr = EasyGui::Windows::Utf8ToUtf16(*command);
 
         EasyGui::Windows::SetClipboardContent(wstr);
     }
