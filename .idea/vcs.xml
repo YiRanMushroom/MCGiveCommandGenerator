@@ -3,11 +3,5 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/vendor/EasyGui" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/vendor/EasyGui/vendor/VulkanMemoryAllocator" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/vendor/EasyGui/vendor/VulkanMemoryAllocator/Vulkan-Headers" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/vendor/EasyGui/vendor/VulkanMemoryAllocator/VulkanMemoryAllocator" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/vendor/EasyGui/vendor/imgui" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/vendor/EasyGui/vendor/sdl3" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/vendor/nlohmann_json" vcs="Git" />
   </component>
 </project>

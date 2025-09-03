@@ -1,8 +1,7 @@
-[submodule "vendor/EasyGui"]
-	path = vendor/EasyGui
-	url = https://github.com/YiRanMushroom/EasyGui
-	branch = master
 [submodule "vendor/nlohmann_json"]
 	path = vendor/nlohmann_json
 	url = https://github.com/nlohmann/json
 	branch = master
+[submodule "vendor/EasyGui"]
+	path = vendor/EasyGui
+	url = https://github.com/YiRanMushroom/EasyGui
