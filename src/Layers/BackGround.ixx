@@ -355,6 +355,8 @@ public:
             UpdateItemList();
         }
 
+        ImGui::BeginChild();
+
         for (const auto &key: m_FilteredItems.Get()) {
             auto &item = m_Items[key];
             if (ImGui::Selectable(item.GetResult().data())) {
@@ -362,6 +364,8 @@ public:
                 m_SelectedItem = key;
             }
         }
+
+        ImGui::EndChild();
 
         ImGui::EndChild();
 
